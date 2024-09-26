@@ -1,7 +1,9 @@
 
 // 2-13, 22-53
-
-int score;
+int double; // establish score variable
+bool gameInProgress = false; // boolean if the game is in progress
+bool isReset = false; // reset boolean
+// not sure where to put these booleans quite yet
 
 // Pins for Drop Target
 int target1 = 2; // target 1
@@ -19,7 +21,6 @@ int count = 0; // count for refiring drop target
 bool refireDropTarget = false;
 
 // Pop Bumpers:
-
 // Pop Bumper 1
 int spoon1Pin = 28;    // spoon pin set to pin 28
 int bumper1Pin = 29;  // pin to make coil fire set to 29
@@ -46,7 +47,6 @@ int bumper5Pin = 37;  // pin to make coil fire set to 37
 int pop5 = 0;      // variable to store the read value
 
 // Rollover Switches:
-
 // Rollover Switch 1
 int rsc1 = 22;
 
@@ -67,6 +67,7 @@ int rsc6 = 27;
 
 // Rollover Switch 7
 int rsc7 = 53;
+// this switch is unique in that it resets the drop target and doesn't give any points
 
 // Rollover Switch 8
 int rsc8 = 38;
@@ -96,7 +97,6 @@ void setup() {
   pinMode(dropTargetPin, OUTPUT); // pin to tell coil to fire set as output
 
   // setup for Pop Bumpers
-
   // setup for Pop Bumper 1
   pinMode(spoon1Pin, INPUT_PULLUP);    // sets the digital pin 28 as input
   pinMode(bumper1Pin, OUTPUT); // sets digital pin 29 as output
@@ -145,7 +145,7 @@ void setup() {
   // Rollover Switch 13
   pinMode(rsc13, INPUT);
 
-  Serial.begin(1200); // serial begin
+  Serial.begin(1200); // serial begin with the necessary baud rate
 } 
 
 void loop() {
@@ -154,9 +154,9 @@ void loop() {
   val2 = digitalRead(target2);   // read the input pin for drop target 2
   val3 = digitalRead(target3);   // read the input pin for drop target 3
   val4 = digitalRead(col); // read col pin
-  if(val1 == 1 || val2 == 1 || val3 == 1) { // if a target gets dropped
+  if(val1 == 1 || val2 == 1 || val3 == 1) { // if any of the targets get dropped
     count += 1; // count goes up by 1
-    score += 150;
+    score += 2500; // increment score
   }
   delay(1000); // delay 
   // looking at all the drop target pins
@@ -170,9 +170,10 @@ void loop() {
   Serial.print(" ");
   Serial.println(count);
 
-  if(count > 0 && score >= 2000) { // if count is more than 0 and we've reached a certain score
+  if(count > 0 && score >= 5000) { // if count is more than 0 and we've reached a certain score
     refireDropTarget = true;
   }
+  // not sure of including this tbh - idk if it is necessary to have to have two methods for it to reset
 
   if(refireDropTarget == true) { // if count is more than 0 and we've reached a certain score
     digitalWrite(dropTargetPin, HIGH); // refire the drop target coil 
@@ -181,7 +182,7 @@ void loop() {
     refireDropTarget = false;
     count = 0;
   }
-  
+
   // Pop Bumpers: 
 
   // Pop Bumper 1
@@ -294,7 +295,6 @@ void loop() {
   Serial.print(rollover7);
   Serial.print("\n");
   if(rsc7 == 1) {
-    score += 250;
     refireDropTarget = true;
   }
 
@@ -346,4 +346,51 @@ void loop() {
     score += 250;
   }
 
+  // any high score surpassed
+
+  // 25,000 point milestone
+  if (score >= 25000) {
+    Serial.println("You've reached 25,000 points!");
+    // light and audio feedback to be added
+  }
+
+  // 50,000 point milestone
+  if (score >= 50000) {
+    Serial.println("You've reached 50,000 points!");
+    // light and audio feedback to be added
+  }
+
+  // 100,000 point milestone
+  if (score >= 100000) {
+    Serial.println("You've reached 100,000 points!");
+    // light and audio feedback to be added
+  }
+
+  // 150,000 point milestone
+  if (score >= 150000) {
+    Serial.println("You've reached 150,000 points!");
+    // light and audio feedback to be added
+  }
+
+  // 200,000 point milestone
+  if (score >= 200000) {
+    Serial.println("You've reached 200,000 points!");
+    // light and audio feedback to be added
+  }
+
+  // 500,000 point milestone
+  if (score >= 500000) {
+    Serial.println("You've reached 500,000 points!");
+    // light and audio feedback to be added
+  }
+
+  // max score reached (99,999,999) 
+  if (score >= 25000) {
+    Serial.println("You've reached the maximum points! Incredible!");
+    // light and audio feedback to be added
+    // reset the game and score
+    score = 0;
+    gameInProgress = false;
+  }
+  // probably not ever going to happen, just a goofy edge case
 }
