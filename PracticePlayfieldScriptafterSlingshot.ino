@@ -91,15 +91,15 @@ int rsc13 = 13;
 // Slingshots:
 // Slingshot 1 
 
-int slingshotSpoonPin1 = 3;    // pushbutton connected to digital pin 7
-int slingshotBumperPin1 = 8;
+int slingshotSpoonPin1 = 48;    // pushbutton connected to digital pin 7
+int slingshotBumperPin1 = 49;
 int slingshot1val = 0;      // variable to store the read valu0e
 int slingshot1val2 = 0;
 
 // Slingshot 2
 
-int slingshotSpoonPin2 = 3;    // pushbutton connected to digital pin 7
-int slingshotBumperPin2 = 8;
+int slingshotSpoonPin2 = 50;    // pushbutton connected to digital pin 7
+int slingshotBumperPin2 = 51;
 int slingshot2val = 0;      // variable to store the read valu0e
 int slingshot2val2 = 0;
 
