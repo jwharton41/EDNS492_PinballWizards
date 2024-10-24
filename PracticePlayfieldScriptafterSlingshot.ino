@@ -67,7 +67,6 @@ int rsc6 = 27;
 
 // Rollover Switch 7
 int rsc7 = 53;
-// this switch is unique in that it resets the drop target and doesn't give any points
 
 // Rollover Switch 8
 int rsc8 = 38;
