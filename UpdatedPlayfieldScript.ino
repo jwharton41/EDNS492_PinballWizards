@@ -33,27 +33,27 @@ bool refireDropTarget = false;
 // Pop Bumper 1
 int spoon1Pin = 28;    // spoon pin set to pin 28
 int bumper1Pin = 29;  // pin to make coil fire set to 29
-int pop1 = 0;      // variable to store the read value
+int pop1 = 50;      // variable to store the read value
 
 // Pop Bumper 2
 int spoon2Pin = 30;    // spoon pin set to pin 30
 int bumper2Pin = 31;  // pin to make coil fire set to 31
-int pop2 = 0;      // variable to store the read value
+int pop2 = 50;      // variable to store the read value
 
 // Pop Bumper 3
 int spoon3Pin = 32;    // spoon pin set to pin 32
 int bumper3Pin = 33;  // pin to make coil fire set to 33
-int pop3 = 0;      // variable to store the read value
+int pop3 = 50;      // variable to store the read value
 
 // Pop Bumper 4
 int spoon4Pin = 34;    // spoon pin set to pin 34
 int bumper4Pin = 35;  // pin to make coil fire set to 35
-int pop4 = 0;      // variable to store the read value
+int pop4 = 50;      // variable to store the read value
 
 // Pop Bumper 5
 int spoon5Pin = 36;    // spoon pin set to pin 36
 int bumper5Pin = 37;  // pin to make coil fire set to 37
-int pop5 = 0;      // variable to store the read value
+int pop5 = 50;      // variable to store the read value
 
 // Rollover Switches:
 // Rollover Switch 1
@@ -126,7 +126,7 @@ actionType action = IDLE; // this is the starting state for our state machine
 void setup() {
 
   // setup for start button
-  pinMode(startPin, INPUT);
+  pinMode(startPin, INPUT_PULLUP);
 
   // setup for Drop Target
   pinMode(target1, INPUT); // target 1
@@ -200,8 +200,10 @@ void setup() {
 
 void loop() {
 
+  Serial.println(score);
+
   if(action == IDLE) {
-    if(InPlay == 1) {
+    if(InPlay == true) {
       action = INPLAY;
     }
   }
@@ -212,14 +214,13 @@ void loop() {
     }
     if(rsc10 == 1) {
       action = INGUTTER;
-      lives -= 1;
     }
   }
 
   if(action == INGUTTER) {
+    lives -= 1;
     if(lives == 0) {
       action = IDLE;
-      Serial.println("Game over");
     }
     else if(lives > 0) {
       if(rsc6 == 1) {
@@ -230,39 +231,44 @@ void loop() {
 
   switch(action) {
     case IDLE:
-      readStartPin = digitalRead(startPin);
-      if(readStartPin == 1) {
-        InPlay = true;
+      readStartPin = digitalRead(startPin); // reading value of start pin
+      if(readStartPin == 1) { // if start pin is hit (becomes a 1)
+        InPlay = true; // In play becomes true, which means we now go into the inplay state, meaning the game starts
       }
       break;
     case INPLAY:
-      // Drop Target: 
+      // Drop Target:
+      //readStartPin = 0; 
       val1 = digitalRead(target1);   // read the input pin for drop target 1
       val2 = digitalRead(target2);   // read the input pin for drop target 2
       val3 = digitalRead(target3);   // read the input pin for drop target 3
       val4 = digitalRead(col); // read col pin
 
       if(val1 == 1 || val2 == 1 || val3 == 1) { // if any of the targets get dropped
-        count += 1;
-        if(prevVal1 == 0 || prevVal2 == 0 || prevVal3 == 0) {
+        count += 1; // increase count
+        if(prevVal1 == 0 || prevVal2 == 0 || prevVal3 == 0) { // if the previous value of a drop target was 0, meaning it just got dropped
           score += 2500; // increment score
         }
       }
 
-      if(count > 0 && rsTriggered == true) { // if count is more than 0 and we've reached a certain score
-        refireDropTarget = true;
-      }
-      // // not sure of including this tbh - idk if it is necessary to have to have two methods for it to reset
+      prevVal1 = val1; // reset previous values
+      prevVal2 = val2;
+      prevVal3 - val3;
 
-      if(refireDropTarget == true) { // if count is more than 0 and we've reached a certain score
+      if(count > 0 && rsTriggered == true) { // if count is more than 0 and the rollover switch has been hit
+        refireDropTarget = true; // fire drop target
+      }
+
+      if(refireDropTarget == true) { // if count is more than 0 meaning a target has been dropped and rollover switch has been hit we can refire the DT
         digitalWrite(dropTargetPin, HIGH); // refire the drop target coil 
         delay(50);
-        digitalWrite(dropTargetPin, LOW);
-        refireDropTarget = false;
-        count = 0;
-        dropTargetCount += 1;
+        digitalWrite(dropTargetPin, LOW); // unfire drop target coil
+        refireDropTarget = false; // no longer want to fire again
+        count = 0; // reset count to 0 because all targets are now up
+        dropTargetCount += 1; // the drop target has been fired this many times
       }
 
+      // backup for drop target stuff
       // switch(dtState) {
       //   if(dtState == IDLETARGET) {
       //     if(rsTriggered == true) {
@@ -313,168 +319,103 @@ void loop() {
       //     break;
 
       // }
+      
       // Pop Bumpers: 
 
       // Pop Bumper 1
-      pop1 = digitalRead(spoon1Pin);   // read the input pin
-      if(pop1 == LOW){
-        digitalWrite(bumper1Pin, HIGH);
-        Serial.println("Ballin");
+      pop1 = digitalRead(spoon1Pin);   // read pop bumper spoon pin
+      if(pop1 == LOW){ // if spoon pin is low
+        digitalWrite(bumper1Pin, HIGH); // fire pop bumper coil
         delay(50);
-        digitalWrite(bumper1Pin, LOW);
-        score += 1000;
+        digitalWrite(bumper1Pin, LOW); // unfire pop bumper coil
+        score += 1000; // increase score by this much
       }  // sets the LED to the button's value
-      Serial.println(pop1);
 
       // Pop Bumper 2
-      pop2 = digitalRead(spoon2Pin);   // read the input pin
-      if(pop2 == LOW){
-        digitalWrite(bumper2Pin, HIGH);
-        Serial.println("Ballin");
+      pop2 = digitalRead(spoon2Pin);   // read the spoon pin
+      if(pop2 == LOW){ // if spoon pin value is low
+        digitalWrite(bumper2Pin, HIGH); // fire pop bumper coil
         delay(50);
-        digitalWrite(bumper2Pin, LOW);
-        score += 1000;
-      }  // sets the LED to the button's value
-      Serial.println(pop2);
+        digitalWrite(bumper2Pin, LOW); // unfire pop bumper coil
+        score += 1000; // increase score by this much
+      }  
 
       // Pop Bumper 3
-      pop3 = digitalRead(spoon3Pin);   // read the input pin
-      if(pop3 == LOW){
-        digitalWrite(bumper3Pin, HIGH);
-        Serial.println("Ballin");
+      pop3 = digitalRead(spoon3Pin);   // read the spoon pin
+      if(pop3 == LOW){ // if spoon pin is low
+        digitalWrite(bumper3Pin, HIGH); // fire pop bumper coil
         delay(50);
-        digitalWrite(bumper3Pin, LOW);
-        score += 1000;
+        digitalWrite(bumper3Pin, LOW); // unfire pop bumper coil
+        score += 1000; // increase score by this much
       }  // sets the LED to the button's value
-      Serial.println(pop3);
 
       // Pop Bumper 4
-      pop4 = digitalRead(spoon4Pin);   // read the input pin
-      if(pop4 == LOW){
-        digitalWrite(bumper4Pin, HIGH);
-        Serial.println("Ballin");
+      pop4 = digitalRead(spoon4Pin);   // read the spoon pin
+      if(pop4 == LOW){ // if spoon pin is low
+        digitalWrite(bumper4Pin, HIGH); // fire pop bumper coil
         delay(50);
-        digitalWrite(bumper4Pin, LOW);
-        score += 1000;
+        digitalWrite(bumper4Pin, LOW); // unfire pop bumper coil
+        score += 1000; // increase score by this much
       }  // sets the LED to the button's value
-      Serial.println(pop4);
 
-      // Pop Bumper 3
+      // Pop Bumper 5
       pop5 = digitalRead(spoon5Pin);   // read the input pin
-      if(pop5 == LOW){
-        digitalWrite(bumper5Pin, HIGH);
-        Serial.println("Ballin");
+      if(pop5 == LOW){ // if spoon pin is low
+        digitalWrite(bumper5Pin, HIGH); // fire pop bumper coil
         delay(50);
-        digitalWrite(bumper5Pin, LOW);
-        score += 1000;
+        digitalWrite(bumper5Pin, LOW); // unfire pop bumper coil
+        score += 1000; // increase score by this much
       }  // sets the LED to the button's value
-      Serial.println(pop5);
 
       // Rollover Switches:
 
       // Rollover Switch 1
-      int rollover1 = digitalRead(rsc1);
-      Serial.print(rollover1);
-      Serial.print("\n");
+      int rollover1 = digitalRead(rsc1); // read rollover switch pin
       if(rsc1 == 1) {
         score += 250;
       }
 
       // Rollover Switch 2
-      int rollover2 = digitalRead(rsc2);
-      Serial.print(rollover2);
-      Serial.print("\n");
-      if(rsc2 == 1) {
+      int rollover2 = digitalRead(rsc2); // read rollover switch pin
+      if(rsc2 == 1) { 
         score += 250;
       }
 
       // Rollover Switch 3
       int rollover3 = digitalRead(rsc3);
-      Serial.print(rollover3);
-      Serial.print("\n");
       if(rsc3 == 1) {
         score += 250;
       }
 
       // Rollover Switch 4
       int rollover4 = digitalRead(rsc4);
-      Serial.print(rollover4);
-      Serial.print("\n");
       if(rsc4 == 1) {
         score += 250;
       }
 
       // Rollover Switch 5
       int rollover5 = digitalRead(rsc5);
-      Serial.print(rollover5);
-      Serial.print("\n");
       if(rsc5 == 1) {
         score += 250;
       }
 
       // Rollover Switch 6
       int rollover6 = digitalRead(rsc6);
-      Serial.print(rollover6);
-      Serial.print("\n");
       if(rsc6 == 1) {
         score += 250;
       }
 
       // Rollover Switch 7
       int rollover7 = digitalRead(rsc7);
-      Serial.print(rollover7);
-      Serial.print("\n");
       if(rsc7 == 1) {
         rsTriggered = true;
       }
 
-      // // Rollover Switch 8
-      // int rollover8 = digitalRead(rsc8);
-      // Serial.print(rollove8);
-      // Serial.print("\n");
-      // if(rsc8 == 1) {
-      //   score += 250;
-      // }
-
-      // // Rollover Switch 9
-      // int rollover9 = digitalRead(rsc9);
-      // Serial.print(rollover9);
-      // Serial.print("\n");
-      // if(rsc9 == 1) {
-      //   score += 250;
-      // }
-
       // Rollover Switch 10
       int rollover10 = digitalRead(rsc10);
-      Serial.print(rollover10);
-      Serial.print("\n");
       if(rsc10 == 1) {
         score += 250;
       }
-
-      // // Rollover Switch 11
-      // int rollover11 = digitalRead(rsc11);
-      // Serial.print(rollover11);
-      // Serial.print("\n");
-      // if(rsc11 == 1) {
-      //   score += 250;
-      // }
-
-      // // Rollover Switch 12
-      // int rollover12 = digitalRead(rsc12);
-      // Serial.print(rollover12);
-      // Serial.print("\n");
-      // if(rsc12 == 1) {
-      //   score += 250;
-      // }
-
-      // // Rollover Switch 13
-      // int rollover13 = digitalRead(rsc13);
-      // Serial.print(rollover13);
-      // Serial.print("\n");
-      // if(rsc13 == 1) {
-      //   score += 250;
-      // }
 
       // Slingshots:
 
@@ -483,26 +424,20 @@ void loop() {
       if(slingshot1val == LOW){
         digitalWrite(slingshotBumperPin1, HIGH);
         val2 = digitalRead(slingshotBumperPin1);
-        Serial.println("Ballin");
         delay(100);
         digitalWrite(slingshotBumperPin1, LOW);
         val2 = digitalRead(slingshotBumperPin1);
-        Serial.println(slingshot1val2);
       }  // sets the LED to the button's value
-      Serial.println(slingshot1val);
 
       // Slingshot2
       slingshot2val = digitalRead(slingshotSpoonPin2);   // read the input pin
       if(slingshot2val == LOW){
         digitalWrite(slingshotBumperPin2, HIGH);
         val2 = digitalRead(slingshotBumperPin2);
-        Serial.println("Ballin");
         delay(100);
         digitalWrite(slingshotBumperPin2, LOW);
         val2 = digitalRead(slingshotBumperPin2);
-        Serial.println(slingshot2val2);
       }  // sets the LED to the button's value
-      Serial.println(slingshot2val);
       break;
 
     case INGUTTER:
