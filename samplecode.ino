@@ -10,8 +10,6 @@ int target2 = 3; // target 2
 int target3 = 4; // target 3
 int col = 5; // col pin // col = 0 means the pins switch when a target drops
 int dropTargetPin = 6; // pin to tell drop target coil to fire
-
-// variables for drop target
 int dropTargetCount = 0; // keep track of how many times drop target fires
 int prevVal1 = 0;  // target 1 previous
 int prevVal2 = 0; // target 2 previous
