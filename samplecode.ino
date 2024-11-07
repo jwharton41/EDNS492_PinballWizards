@@ -1,10 +1,6 @@
-
-// 2-13, 22-53
 int score = 0;
 bool InPlay = false; // boolean if the game is in progress
 int lives = 3;
-// not sure where to put these booleans quite yet
-
 // pin for start button
 int startPin = 8;
 int readStartPin = 0;
