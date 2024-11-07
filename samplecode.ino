@@ -1,7 +1,6 @@
 int score = 0;
-bool InPlay = false; // boolean if the game is in progress
+bool InPlay = false;
 int lives = 3;
-// pin for start button
 int startPin = 8;
 int readStartPin = 0;
 
