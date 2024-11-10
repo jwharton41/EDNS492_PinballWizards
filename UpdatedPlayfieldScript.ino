@@ -1,3 +1,7 @@
+#include <FastLED.h> // LED strip library declaration 
+#define DATA_PIN 6
+#define NUM_LEDS 10 
+CRGB leds[NUM_LEDS]; // can change the numbers later if we have to
 
 // 2-13, 22-53
 int score = 0;
@@ -194,6 +198,7 @@ void setup() {
   pinMode(slingshotSpoonPin2, INPUT_PULLUP);    
   pinMode(slingshotBumperPin2, OUTPUT);
 
+  FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS); // setup for the LED strip
 
   Serial.begin(115200); // serial begin with the necessary baud rate
 } 
