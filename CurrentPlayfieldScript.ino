@@ -3,8 +3,10 @@
 #define NUM_LEDS 10 
 CRGB leds[NUM_LEDS]; // can change the numbers later if we have to
 
+unsigned long time;
+
 // 2-13, 22-53
-int score = 0;
+unsigned long score = 0;
 bool InPlay = false; // boolean if the game is in progress
 int lives = 3;
 // not sure where to put these booleans quite yet
@@ -22,25 +24,25 @@ int dropTargetPin = 6; // pin to tell drop target coil to fire
 
 // variables for drop target
 int dropTargetCount = 0; // keep track of how many times drop target fires
-int prevVal1.1 = 0;  // target 1 previous
-int prevVal2.1 = 0; // target 2 previous
-int prevVal3.1 = 0; // target 3 previous
+int prevVal1_1 = 0;  // target 1 previous
+int prevVal2_1 = 0; // target 2 previous
+int prevVal3_1 = 0; // target 3 previous
 
-int prevVal1.2 = 0;  // target 1 previous
-int prevVal2.2 = 0; // target 2 previous
-int prevVal3.2 = 0; // target 3 previous
+int prevVal1_2 = 0;  // target 1 previous
+int prevVal2_2 = 0; // target 2 previous
+int prevVal3_2 = 0; // target 3 previous
 
-int prevVal1.3 = 0;  // target 1 previous
-int prevVal2.3 = 0; // target 2 previous
-int prevVal3.3 = 0; // target 3 previous
+int prevVal1_3 = 0;  // target 1 previous
+int prevVal2_3 = 0; // target 2 previous
+int prevVal3_3 = 0; // target 3 previous
 
-int prevVal1.4 = 0;  // target 1 previous
-int prevVal2.4 = 0; // target 2 previous
-int prevVal3.4 = 0; // target 3 previous
+int prevVal1_4 = 0;  // target 1 previous
+int prevVal2_4 = 0; // target 2 previous
+int prevVal3_4 = 0; // target 3 previous
 
-int prevVal1.5 = 0;  // target 1 previous
-int prevVal2.5 = 0; // target 2 previous
-int prevVal3.5 = 0; // target 3 previous
+int prevVal1_5 = 0;  // target 1 previous
+int prevVal2_5 = 0; // target 2 previous
+int prevVal3_5 = 0; // target 3 previous
 
 
 int val1 = 0;  // target 1
@@ -98,13 +100,6 @@ int rsc5 = 26;
 // Rollover Switch 6
 int rsc6 = 27;
 
-// Rollover Switch 7
-int rsc7 = 53;
-// this switch is unique in that it resets the drop target and doesn't give any points
-
-// Rollover Switch 10
-int rsc10 = 40;
-
 int rollover1 = 0;
 int prevRoll1 = 0;
 int rollover2 = 0;
@@ -118,35 +113,26 @@ int prevRoll5 = 0;
 int rollover6 = 0;
 int prevRoll6 = 0;
 int rollover7 = 0;
-int prevRoll7 = 0;
 int rollover10 = 0;
-int prevRoll10 = 0;
 
 // Slingshots:
 // Slingshot 1 
-
 int slingshotSpoonPin1 = 48;   
 int slingshotBumperPin1 = 49;
 int slingshot1val = 0;      // variable to store the read valu0e
 int slingshot1val2 = 0;
 
 // Slingshot 2
-
 int slingshotSpoonPin2 = 50;
 int slingshotBumperPin2 = 51;
 int slingshot2val = 0;      // variable to store the read valu0e
 int slingshot2val2 = 0;
 
 // state machine
-enum actionType {IDLE, INPLAY, INGUTTER};
+enum actionType {IDLE, INPLAY, /*INGUTTER*/};
 // declaration for each of the states for our state machine
 
 actionType action = IDLE; // this is the starting state for our state machine
-
-// enum dropTargetState {IDLETARGET, CANFIRE, FIRE}
-
-// dropTargetState dtState = IDLETARGET;
-
 
 void setup() {
 
@@ -184,21 +170,17 @@ void setup() {
 
   // Setup for Rollover Switches
   // Rollover Switch 1
-  pinMode(rsc1, INPUT);
+  pinMode(rsc1, INPUT_PULLUP);
   // Rollover Switch 2
-  pinMode(rsc2, INPUT);
+  pinMode(rsc2, INPUT_PULLUP);
   // Rollover Switch 3
-  pinMode(rsc3, INPUT);
+  pinMode(rsc3, INPUT_PULLUP);
   // Rollover Switch 4
-  pinMode(rsc4, INPUT);
+  pinMode(rsc4, INPUT_PULLUP);
   // Rollover Switch 5
-  pinMode(rsc5, INPUT);
+  pinMode(rsc5, INPUT_PULLUP);
   // Rollover Switch 6
-  pinMode(rsc6, INPUT);
-  // Rollover Switch 7
-  pinMode(rsc7, INPUT);
-  // Rollover Switch 10
-  pinMode(rsc10, INPUT);
+  pinMode(rsc6, INPUT_PULLUP);
 
   // Setup for Slingshots
   // Slingshot 1
@@ -216,6 +198,7 @@ void setup() {
 
 void loop() {
 
+  Serial.print("Score: ");
   Serial.println(score);
 
   if(action == IDLE) {
@@ -228,22 +211,15 @@ void loop() {
     if(dropTargetCount == 0) {
       refireDropTarget = true;
     }
-    if(rsc10 == 1) {
-      action = INGUTTER;
+    if(lives == 0) {
+      action = IDLE;
+      InPlay = false;
     }
   }
 
-  if(action == INGUTTER) {
-    lives -= 1;
-    if(lives == 0) {
-      action = IDLE;
-    }
-    else if(lives > 0) {
-      if(rsc6 == 1) {
-        action = INPLAY;
-      }
-    }
-  }
+  Serial.print("Lives: ");
+  Serial.println(lives);
+
 
   switch(action) {
     case IDLE:
@@ -254,59 +230,40 @@ void loop() {
       break;
     case INPLAY:
       // Drop Target:
-      
+      if(millis() % 1000 == 0){
       val1 = digitalRead(target1);   // read the input pin for drop target 1
       val2 = digitalRead(target2);   // read the input pin for drop target 2
       val3 = digitalRead(target3);   // read the input pin for drop target 3
       val4 = digitalRead(col); // read col pin
 
-      Serial.println(val1);
-
       if(val1 == 1 || val2 == 1 || val3 == 1) { // if any of the targets get dropped
-        if(prevVal1.1 == 1 || prevVal2.1 == 1 || prevVal3.1 == 1) { // if the previous value of a drop target was 0, meaning it just got dropped
-          if(prevVal1.2 == 1 || prevVal2.2 == 1 || prevVal3.2 == 1) { // if the previous value of a drop target was 0, meaning it just got dropped
-            if(prevVal1.3 == 1 || prevVal2.3 == 1 || prevVal3.3 == 1) { // if the previous value of a drop target was 0, meaning it just got dropped
-              if(prevVal1.4 == 1 || prevVal2.4 == 1 || prevVal3.4 == 1) { // if the previous value of a drop target was 0, meaning it just got dropped
-                if(prevVal1.5 == 0 || prevVal2.5 == 0 || prevVal3.5 == 0) { // if the previous value of a drop target was 0, meaning it just got dropped
-                  count += 1; // increase count
-                  score += 2500; // increment score
-                  Serial.println("Drop");
-                }
-              }
-            }
+          if(prevVal1_1 == 0 || prevVal2_1 == 0 || prevVal3_1 == 0) { // if the previous value of a drop target was 0, meaning it just got dropped
+            count += 1; // increase count
+            score += 2500; // increment score
+            Serial.println("Drop");
           }
         }
+        
       }
 
-      prevVal1.5 = prevVal1.4;  // target 1 previous
-      prevVal2.5 = prevVal2.4; // target 2 previous
-      prevVal3.5 = prevVal3.4; // target 3 previous
-
-      prevVal1.4 = prevVal1.3;  // target 1 previous
-      prevVal2.4 = prevVal2.3; // target 2 previous
-      prevVal3.4 = prevVal3.3; // target 3 previous
-
-      prevVal1.3 = prevVal1.2;  // target 1 previous
-      prevVal2.3 = prevVal2.2; // target 2 previous
-      prevVal3.3 = prevVal3.2; // target 3 previous
-
-      prevVal1.2 = prevVal1.1;
-      prevVal2.2 = prevVal2.1;
-      prevVal3.2 = prevVal3.1;
-
-      prevVal1.1 = val1;  // target 1 previous
-      prevVal2.1 = val2; // target 2 previous
-      prevVal3.1 = val3; // target 3 previous
+      prevVal1_1 = val1;  // target 1 previous
+      prevVal2_1 = val2; // target 2 previous
+      prevVal3_1 = val3; // target 3 previous
 
       if(count > 0 && rsTriggered == true) { // if count is more than 0 and the rollover switch has been hit
         refireDropTarget = true; // fire drop target
+        count = 0;
       }
 
       if(refireDropTarget == true) { // if count is more than 0 meaning a target has been dropped and rollover switch has been hit we can refire the DT
         digitalWrite(dropTargetPin, HIGH); // refire the drop target coil 
         delay(50);
         digitalWrite(dropTargetPin, LOW); // unfire drop target coil
+        if(dropTargetCount == 0) {
+          delay(1500);
+        }
         refireDropTarget = false; // no longer want to fire again
+        rsTriggered = false;
         count = 0; // reset count to 0 because all targets are now up
         dropTargetCount += 1; // the drop target has been fired this many times
       }
@@ -366,8 +323,10 @@ void loop() {
         if(prevRoll1 == 0) {
           Serial.println("one");
           score += 250;
+          rsTriggered = true;
         }
       }
+      prevRoll1 = rollover1;
 
       // Rollover Switch 2
       rollover2 = digitalRead(rsc2); // read rollover switch pin
@@ -377,6 +336,7 @@ void loop() {
           score += 250;
         }
       }
+      prevRoll2 = rollover2;
 
       // Rollover Switch 3
       rollover3 = digitalRead(rsc3);
@@ -386,6 +346,7 @@ void loop() {
           score += 250;
         }
       }
+      prevRoll3 = rollover3;
 
       // Rollover Switch 4
       rollover4 = digitalRead(rsc4);
@@ -395,6 +356,7 @@ void loop() {
           score += 250;
         }
       }
+      prevRoll4 = rollover4;
 
       // Rollover Switch 5
       rollover5 = digitalRead(rsc5);
@@ -404,35 +366,17 @@ void loop() {
           score += 250;
         }
       }
-
+      prevRoll5 = rollover5;
 
       // Rollover Switch 6
       rollover6 = digitalRead(rsc6);
       if(rollover6 == 1) {
         if(prevRoll6 == 0) {
           Serial.println("six");
-          score += 250;
+          lives -= 1;
         }
-      }
-
-      // Rollover Switch 7
-      rollover7 = digitalRead(rsc7);
-      if(rollover7 == 1) {
-        if(prevRoll7 == 0)
-          Serial.println("seven");
-          rsTriggered = true;
-        }
-      }
-
-      // Rollover Switch 10
-      rollover10 = digitalRead(rsc10);
-      if(rollover10 == 1) {
-        if(prevRoll10 == 0) {
-          Serial.println("ten");
-          score += 250;
-        }
-      }
-
+      } 
+      prevRoll6 = rollover6;
 
       // Slingshots:
 
@@ -458,11 +402,5 @@ void loop() {
         score += 500; // increase score by this much
       }  
       break;
-
-    case INGUTTER:
-      // do cervo motor things
-      int x = 1;
-      break;
-
   }
 }
