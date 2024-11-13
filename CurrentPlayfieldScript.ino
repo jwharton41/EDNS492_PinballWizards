@@ -129,8 +129,7 @@ int slingshot2val = 0;      // variable to store the read valu0e
 int slingshot2val2 = 0;
 
 // state machine
-enum actionType {IDLE, INPLAY, /*INGUTTER*/};
-// declaration for each of the states for our state machine
+enum actionType {IDLE, INPLAY}; // declaration for each of the states for our state machine
 
 actionType action = IDLE; // this is the starting state for our state machine
 
@@ -201,19 +200,19 @@ void loop() {
   Serial.print("Score: ");
   Serial.println(score);
 
-  if(action == IDLE) {
-    if(InPlay == true) {
-      action = INPLAY;
+  if(action == IDLE) { // if we are in an idle state
+    if(InPlay == true) { // if boolean InPlay becomes equal to true
+      action = INPLAY; // action will change to INPLAY, starting the game
     }
   }
 
-  if(action == INPLAY) {
-    if(dropTargetCount == 0) {
-      refireDropTarget = true;
+  if(action == INPLAY) { // if the game has started and is now being played
+    if(dropTargetCount == 0) { // if the drop target has not been fired at all (has fired 0 times)
+      refireDropTarget = true; // fire the drop target
     }
-    if(lives == 0) {
-      action = IDLE;
-      InPlay = false;
+    if(lives == 0) { // if the player is out of lives (The ball has gone in the gutter 3 times)
+      action = IDLE; // we return to an idle state and the game is over
+      InPlay = false; // in play is reset to false
     }
   }
 
@@ -224,7 +223,7 @@ void loop() {
   switch(action) {
     case IDLE:
       readStartPin = digitalRead(startPin); // reading value of start pin
-      if(readStartPin == 0) { // if start pin is hit (becomes a 1)
+      if(readStartPin == 0) { // if start pin is hit (becomes a 0)
         InPlay = true; // In play becomes true, which means we now go into the inplay state, meaning the game starts
       }
       break;
@@ -236,35 +235,34 @@ void loop() {
       val3 = digitalRead(target3);   // read the input pin for drop target 3
       val4 = digitalRead(col); // read col pin
 
-      if(val1 == 1 || val2 == 1 || val3 == 1) { // if any of the targets get dropped
-          if(prevVal1_1 == 0 || prevVal2_1 == 0 || prevVal3_1 == 0) { // if the previous value of a drop target was 0, meaning it just got dropped
-            count += 1; // increase count
+      if(val1 == 1 || val2 == 1 || val3 == 1) { // if any of the targets now see a 1
+          if(prevVal1_1 == 0 || prevVal2_1 == 0 || prevVal3_1 == 0) { // if the previous value of a drop target was 0, meaning it just got hit
+            count += 1; // increase count of how many targets have been hit
             score += 2500; // increment score
-            Serial.println("Drop");
           }
         }
-        
+
       }
 
-      prevVal1_1 = val1;  // target 1 previous
-      prevVal2_1 = val2; // target 2 previous
-      prevVal3_1 = val3; // target 3 previous
+      prevVal1_1 = val1;  // target 1 previous value
+      prevVal2_1 = val2; // target 2 previous value
+      prevVal3_1 = val3; // target 3 previous value
 
       if(count > 0 && rsTriggered == true) { // if count is more than 0 and the rollover switch has been hit
         refireDropTarget = true; // fire drop target
-        count = 0;
+        count = 0; // return count to 0 because all the targets will now go up
       }
 
       if(refireDropTarget == true) { // if count is more than 0 meaning a target has been dropped and rollover switch has been hit we can refire the DT
         digitalWrite(dropTargetPin, HIGH); // refire the drop target coil 
-        delay(50);
+        delay(50); // breif pause for coil to fire fully
         digitalWrite(dropTargetPin, LOW); // unfire drop target coil
-        if(dropTargetCount == 0) {
-          delay(1500);
+        if(dropTargetCount == 0) { // if this is the first time the drop target is being fired
+          delay(1500); // the first time, we want to delay by a second and a half to consistently read the target (There is some interference at the start)
         }
         refireDropTarget = false; // no longer want to fire again
-        rsTriggered = false;
-        count = 0; // reset count to 0 because all targets are now up
+        rsTriggered = false; // reset this boolean back to false
+        count = 0; // reset count to 0 because all targets are now up (repeated for insurance)
         dropTargetCount += 1; // the drop target has been fired this many times
       }
       
@@ -319,64 +317,64 @@ void loop() {
 
       // Rollover Switch 1
       rollover1 = digitalRead(rsc1); // read rollover switch pin
-      if(rollover1 == 1) {
-        if(prevRoll1 == 0) {
-          Serial.println("one");
-          score += 250;
-          rsTriggered = true;
+      if(rollover1 == 1) { // if rollover switch has changed to a 1
+        if(prevRoll1 == 0) { // if the previous value was a zero, meaning it has switched from 0 to 1
+          Serial.println("one"); // print statement for testing
+          score += 250; // increase score by this many points
+          rsTriggered = true; // the rollover switch to allow the drop target to fire has been triggered
         }
       }
-      prevRoll1 = rollover1;
+      prevRoll1 = rollover1; // set previous value to be the last value of the switch
 
       // Rollover Switch 2
       rollover2 = digitalRead(rsc2); // read rollover switch pin
-      if(rollover2 == 1) {
-        if(prevRoll2 == 0) {
-          Serial.println("two");
-          score += 250;
+      if(rollover2 == 1) { // if rollover switch has changed to a 1
+        if(prevRoll2 == 0) { // if the previous value was a zero, meaning it has switched from 0 to 1
+          Serial.println("two"); // print statement for testing
+          score += 250; // increase score by this many points
         }
       }
-      prevRoll2 = rollover2;
+      prevRoll2 = rollover2; // set previous value to be the last value of the switch
 
       // Rollover Switch 3
-      rollover3 = digitalRead(rsc3);
-      if(rollover3 == 1) {
-        if(prevRoll3 == 0) {
-          Serial.println("three");
-          score += 250;
+      rollover3 = digitalRead(rsc3); // read rollover switch pin
+      if(rollover3 == 1) { // if rollover switch has changed to a 1
+        if(prevRoll3 == 0) { // if the previous value was a zero, meaning it has switched from 0 to 1
+          Serial.println("three"); // print statement for testing
+          score += 250; // increase score by this many points
         }
       }
-      prevRoll3 = rollover3;
+      prevRoll3 = rollover3; // set previous value to be the last value of the switch
 
       // Rollover Switch 4
-      rollover4 = digitalRead(rsc4);
-      if(rollover4 == 1) {
-        if(prevRoll4 == 0) {
-          Serial.println("four");
-          score += 250;
+      rollover4 = digitalRead(rsc4); // read rollover switch pin
+      if(rollover4 == 1) { // if rollover switch has changed to a 1
+        if(prevRoll4 == 0) { // if the previous value was a zero, meaning it has switched from 0 to 1
+          Serial.println("four"); // print statement for testing
+          score += 250; // increase score by this many points
         }
       }
-      prevRoll4 = rollover4;
+      prevRoll4 = rollover4; // set previous value to be the last value of the switch
 
       // Rollover Switch 5
-      rollover5 = digitalRead(rsc5);
-      if(rollover5 == 1) {
-        if(prevRoll5 == 0) {
-          Serial.println("five");
-          score += 250;
+      rollover5 = digitalRead(rsc5); // read rollover switch pin
+      if(rollover5 == 1) { // if rollover switch has changed to a 1
+        if(prevRoll5 == 0) { // if the previous value was a zero, meaning it has switched from 0 to 1
+          Serial.println("five"); // print statement for testing
+          score += 250; // increase score by this many points
         }
       }
-      prevRoll5 = rollover5;
+      prevRoll5 = rollover5; // set previous value to be the last value of the switch
 
       // Rollover Switch 6
-      rollover6 = digitalRead(rsc6);
-      if(rollover6 == 1) {
-        if(prevRoll6 == 0) {
-          Serial.println("six");
-          lives -= 1;
+      rollover6 = digitalRead(rsc6); // read rollover switch pin
+      if(rollover6 == 1) { // if rollover switch has changed to a 1
+        if(prevRoll6 == 0) { // if the previous value was a zero, meaning it has switched from 0 to 1
+          Serial.println("six"); // print statement for testing
+          lives -= 1; // decrease lives by 1 as the ball has gone in the gutter
         }
       } 
-      prevRoll6 = rollover6;
+      prevRoll6 = rollover6; // set previous value to be the last value of the switch
 
       // Slingshots:
 
