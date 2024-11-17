@@ -1,5 +1,5 @@
 #include <FastLED.h> // LED strip library declaration 
-#define DATA_PIN 42
+#define DATA_PIN 6
 #define NUM_LEDS 10 
 CRGB leds[NUM_LEDS]; // can change the numbers later if we have to
 
@@ -63,22 +63,22 @@ int pop1 = 50;      // variable to store the read value
 
 // Pop Bumper 2
 int spoon2Pin = 30;    // spoon pin set to pin 30
-int bumper2Pin = 31;  // pin to make coil fire set to 31
+int bumper2Pin = 38;  // pin to make coil fire set to 31
 int pop2 = 50;      // variable to store the read value
 
 // Pop Bumper 3
-int spoon3Pin = 32;    // spoon pin set to pin 32
+int spoon3Pin = 47;    // spoon pin set to pin 32
 int bumper3Pin = 33;  // pin to make coil fire set to 33
 int pop3 = 50;      // variable to store the read value
 
 // Pop Bumper 4
 int spoon4Pin = 34;    // spoon pin set to pin 34
-int bumper4Pin = 35;  // pin to make coil fire set to 35
+int bumper4Pin = 39;  // pin to make coil fire set to 35
 int pop4 = 50;      // variable to store the read value
 
 // Pop Bumper 5
-int spoon5Pin = 36;    // spoon pin set to pin 36
-int bumper5Pin = 37;  // pin to make coil fire set to 37
+int spoon5Pin = 41;    // spoon pin set to pin 36
+int bumper5Pin = 40;  // pin to make coil fire set to 37
 int pop5 = 50;      // variable to store the read value
 
 // Rollover Switches:
@@ -117,16 +117,16 @@ int rollover10 = 0;
 
 // Slingshots:
 // Slingshot 1 
-int slingshotSpoonPin1 = 48;   
+int slingshotSpoonPin1 = 53;   
 int slingshotBumperPin1 = 49;
-int slingshot1val = 0;      // variable to store the read valu0e
-int slingshot1val2 = 0;
+int slingshot1val = 50;      // variable to store the read valu0e
+int slingshot1val2 = 50;
 
 // Slingshot 2
 int slingshotSpoonPin2 = 50;
-int slingshotBumperPin2 = 51;
-int slingshot2val = 0;      // variable to store the read valu0e
-int slingshot2val2 = 0;
+int slingshotBumperPin2 = 52;
+int slingshot2val = 50;      // variable to store the read valu0e
+int slingshot2val2 = 50;
 
 // state machine
 enum actionType {IDLE, INPLAY}; // declaration for each of the states for our state machine
@@ -197,8 +197,8 @@ void setup() {
 
 void loop() {
 
-  Serial.print("Score: ");
-  Serial.println(score);
+  // Serial.print("Score: ");
+  // Serial.println(score);
 
   if(action == IDLE) { // if we are in an idle state
     if(InPlay == true) { // if boolean InPlay becomes equal to true
@@ -216,8 +216,8 @@ void loop() {
     }
   }
 
-  Serial.print("Lives: ");
-  Serial.println(lives);
+  // Serial.print("Lives: ");
+  // Serial.println(lives);
 
 
   switch(action) {
@@ -271,6 +271,7 @@ void loop() {
       // Pop Bumper 1
       pop1 = digitalRead(spoon1Pin);   // read pop bumper spoon pin
       if(pop1 == LOW){ // if spoon pin is low
+        //Serial.println("Ballin1");
         digitalWrite(bumper1Pin, HIGH); // fire pop bumper coil
         delay(100);
         digitalWrite(bumper1Pin, LOW); // unfire pop bumper coil
@@ -280,6 +281,7 @@ void loop() {
       // Pop Bumper 2
       pop2 = digitalRead(spoon2Pin);   // read the spoon pin
       if(pop2 == LOW){ // if spoon pin value is low
+        Serial.println("Ballin2");
         digitalWrite(bumper2Pin, HIGH); // fire pop bumper coil
         delay(100);
         digitalWrite(bumper2Pin, LOW); // unfire pop bumper coil
@@ -289,6 +291,7 @@ void loop() {
       // Pop Bumper 3
       pop3 = digitalRead(spoon3Pin);   // read the spoon pin
       if(pop3 == LOW){ // if spoon pin is low
+        Serial.println("Ballin3");
         digitalWrite(bumper3Pin, HIGH); // fire pop bumper coil
         delay(100);
         digitalWrite(bumper3Pin, LOW); // unfire pop bumper coil
@@ -298,6 +301,7 @@ void loop() {
       // Pop Bumper 4
       pop4 = digitalRead(spoon4Pin);   // read the spoon pin
       if(pop4 == LOW){ // if spoon pin is low
+        Serial.println("Ballin4");
         digitalWrite(bumper4Pin, HIGH); // fire pop bumper coil
         delay(100);
         digitalWrite(bumper4Pin, LOW); // unfire pop bumper coil
@@ -307,6 +311,7 @@ void loop() {
       // Pop Bumper 5
       pop5 = digitalRead(spoon5Pin);   // read the input pin
       if(pop5 == LOW){ // if spoon pin is low
+        Serial.println("Ballin5");
         digitalWrite(bumper5Pin, HIGH); // fire pop bumper coil
         delay(100);
         digitalWrite(bumper5Pin, LOW); // unfire pop bumper coil
@@ -367,11 +372,13 @@ void loop() {
       prevRoll5 = rollover5; // set previous value to be the last value of the switch
 
       // Rollover Switch 6
+      
       rollover6 = digitalRead(rsc6); // read rollover switch pin
       if(rollover6 == 1) { // if rollover switch has changed to a 1
         if(prevRoll6 == 0) { // if the previous value was a zero, meaning it has switched from 0 to 1
           Serial.println("six"); // print statement for testing
           lives -= 1; // decrease lives by 1 as the ball has gone in the gutter
+          delay(1000);
         }
       } 
       prevRoll6 = rollover6; // set previous value to be the last value of the switch
@@ -381,17 +388,17 @@ void loop() {
       // Slingshot1
       slingshot1val = digitalRead(slingshotSpoonPin1);   // read the input pin
       if(slingshot1val == LOW){
+        Serial.println("Slingshot1");
         digitalWrite(slingshotBumperPin1, HIGH);
-        val2 = digitalRead(slingshotBumperPin1);
         delay(100);
         digitalWrite(slingshotBumperPin1, LOW);
-        val2 = digitalRead(slingshotBumperPin1);
         score += 500; // increase score by this much
       }  
 
       // Slingshot2
       slingshot2val = digitalRead(slingshotSpoonPin2);   // read the input pin
       if(slingshot2val == LOW){
+        Serial.println("Slingshot2");
         digitalWrite(slingshotBumperPin2, HIGH);
         val2 = digitalRead(slingshotBumperPin2);
         delay(100);
