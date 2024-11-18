@@ -67,23 +67,23 @@ int bumper2Pin = 38;  // pin to make coil fire set to 31
 int pop2 = 50;      // variable to store the read value
 
 // Pop Bumper 3
-int spoon3Pin = 47;    // spoon pin set to pin 32
+int spoon3Pin = 35;    // spoon pin set to pin 32
 int bumper3Pin = 33;  // pin to make coil fire set to 33
 int pop3 = 50;      // variable to store the read value
 
 // Pop Bumper 4
-int spoon4Pin = 34;    // spoon pin set to pin 34
+int spoon4Pin = 47;    // spoon pin set to pin 34
 int bumper4Pin = 39;  // pin to make coil fire set to 35
 int pop4 = 50;      // variable to store the read value
 
 // Pop Bumper 5
 int spoon5Pin = 41;    // spoon pin set to pin 36
-int bumper5Pin = 40;  // pin to make coil fire set to 37
+int bumper5Pin = 51;  // pin to make coil fire set to 37
 int pop5 = 50;      // variable to store the read value
 
 // Rollover Switches:
 // Rollover Switch 1
-int rsc1 = 22;
+int rsc1 = 25;
 
 // Rollover Switch 2
 int rsc2 = 23;
@@ -92,7 +92,7 @@ int rsc2 = 23;
 int rsc3 = 24;
 
 // Rollover Switch 4
-int rsc4 = 25;
+int rsc4 = 22;
 
 // Rollover Switch 5
 int rsc5 = 26;
@@ -123,15 +123,15 @@ int slingshot1val = 50;      // variable to store the read valu0e
 int slingshot1val2 = 50;
 
 // Slingshot 2
-int slingshotSpoonPin2 = 50;
-int slingshotBumperPin2 = 52;
+int slingshotSpoonPin2 = 11;
+int slingshotBumperPin2 = 10;
 int slingshot2val = 50;      // variable to store the read valu0e
 int slingshot2val2 = 50;
 
 // state machine
 enum actionType {IDLE, INPLAY}; // declaration for each of the states for our state machine
 
-actionType action = IDLE; // this is the starting state for our state machine
+actionType action = INPLAY; // this is the starting state for our state machine
 
 void setup() {
 
@@ -271,7 +271,7 @@ void loop() {
       // Pop Bumper 1
       pop1 = digitalRead(spoon1Pin);   // read pop bumper spoon pin
       if(pop1 == LOW){ // if spoon pin is low
-        //Serial.println("Ballin1");
+        Serial.println("Ballin1");
         digitalWrite(bumper1Pin, HIGH); // fire pop bumper coil
         delay(100);
         digitalWrite(bumper1Pin, LOW); // unfire pop bumper coil
