@@ -9,10 +9,9 @@ unsigned long time;
 unsigned long score = 0;
 bool InPlay = false; // boolean if the game is in progress
 int lives = 3;
-// not sure where to put these booleans quite yet
 
 // pin for start button
-int startPin = 8;
+int startPin = 13;
 int readStartPin = 0;
 
 // Pins for Drop Target
@@ -24,26 +23,10 @@ int dropTargetPin = 6; // pin to tell drop target coil to fire
 
 // variables for drop target
 int dropTargetCount = 0; // keep track of how many times drop target fires
+
 int prevVal1_1 = 0;  // target 1 previous
 int prevVal2_1 = 0; // target 2 previous
 int prevVal3_1 = 0; // target 3 previous
-
-int prevVal1_2 = 0;  // target 1 previous
-int prevVal2_2 = 0; // target 2 previous
-int prevVal3_2 = 0; // target 3 previous
-
-int prevVal1_3 = 0;  // target 1 previous
-int prevVal2_3 = 0; // target 2 previous
-int prevVal3_3 = 0; // target 3 previous
-
-int prevVal1_4 = 0;  // target 1 previous
-int prevVal2_4 = 0; // target 2 previous
-int prevVal3_4 = 0; // target 3 previous
-
-int prevVal1_5 = 0;  // target 1 previous
-int prevVal2_5 = 0; // target 2 previous
-int prevVal3_5 = 0; // target 3 previous
-
 
 int val1 = 0;  // target 1
 int val2 = 0; // target 2
@@ -83,44 +66,41 @@ int pop5 = 50;      // variable to store the read value
 
 // Rollover Switches:
 // Rollover Switch 1
-int rsc1 = 25;
+int rsc1 = 25; // pin for rollover switch
+int rollover1 = 0; // rollover switch value read
+int prevRoll1 = 0; // previous rollover switch value read
 
 // Rollover Switch 2
 int rsc2 = 23;
+int rollover2 = 0;
+int prevRoll2 = 0;
 
 // Rollover Switch 3
 int rsc3 = 24;
+int rollover3 = 0;
+int prevRoll3 = 0;
 
 // Rollover Switch 4
 int rsc4 = 22;
+int rollover4 = 0;
+int prevRoll4 = 0;
 
 // Rollover Switch 5
 int rsc5 = 26;
-
-// Rollover Switch 6
-int rsc6 = 27;
-
-int rollover1 = 0;
-int prevRoll1 = 0;
-int rollover2 = 0;
-int prevRoll2 = 0;
-int rollover3 = 0;
-int prevRoll3 = 0;
-int rollover4 = 0;
-int prevRoll4 = 0;
 int rollover5 = 0;
 int prevRoll5 = 0;
+
+// Rollover Switch 6
+int rsc6 = 9;
 int rollover6 = 0;
 int prevRoll6 = 0;
-int rollover7 = 0;
-int rollover10 = 0;
 
 // Slingshots:
 // Slingshot 1 
-int slingshotSpoonPin1 = 53;   
-int slingshotBumperPin1 = 49;
-int slingshot1val = 50;      // variable to store the read valu0e
-int slingshot1val2 = 50;
+int slingshotSpoonPin1 = 53; // slingshot spoon pin 
+int slingshotBumperPin1 = 49; // slingshot relay pin
+int slingshot1val = 50; // variable to store the read value
+int slingshot1val2 = 50; // 
 
 // Slingshot 2
 int slingshotSpoonPin2 = 11;
@@ -131,7 +111,7 @@ int slingshot2val2 = 50;
 // state machine
 enum actionType {IDLE, INPLAY}; // declaration for each of the states for our state machine
 
-actionType action = INPLAY; // this is the starting state for our state machine
+actionType action = IDLE; // this is the starting state for our state machine
 
 void setup() {
 
@@ -319,7 +299,6 @@ void loop() {
       }  // sets the LED to the button's value
 
       // Rollover Switches:
-
       // Rollover Switch 1
       rollover1 = digitalRead(rsc1); // read rollover switch pin
       if(rollover1 == 1) { // if rollover switch has changed to a 1
@@ -372,7 +351,6 @@ void loop() {
       prevRoll5 = rollover5; // set previous value to be the last value of the switch
 
       // Rollover Switch 6
-      
       rollover6 = digitalRead(rsc6); // read rollover switch pin
       if(rollover6 == 1) { // if rollover switch has changed to a 1
         if(prevRoll6 == 0) { // if the previous value was a zero, meaning it has switched from 0 to 1
@@ -384,7 +362,6 @@ void loop() {
       prevRoll6 = rollover6; // set previous value to be the last value of the switch
 
       // Slingshots:
-
       // Slingshot1
       slingshot1val = digitalRead(slingshotSpoonPin1);   // read the input pin
       if(slingshot1val == LOW){
