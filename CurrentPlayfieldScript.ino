@@ -9,7 +9,7 @@ CRGB leds[NUM_LEDS]; // can change the numbers later if we have to
  
 Servo myServo; // Create a servo object
  
-const int servoPin = 44; // Pin connected to the servo signal
+const int servoPin = 45; // Pin connected to the servo signal
 int buttonState = 0; // Variable to store the button state
 int Trigger1 = 50;
 int Trigger2 = 50;
@@ -132,7 +132,7 @@ void setup() {
 
   // setup for Servo
   myServo.attach(servoPin); // Attach the servo to the specified pin
-  myServo.write(0); // Initialize servo to 0 degrees
+  myServo.write(45); // Initialize servo to 0 degrees
 
   // setup for start button
   pinMode(startPin, INPUT_PULLUP);
@@ -198,6 +198,7 @@ void loop() {
 
   // Serial.print("Score: ");
   // Serial.println(score);
+  Serial.write(score);
 
   //Serial.println("hello");
   //Serial.println(readStartPin);
@@ -233,6 +234,9 @@ void loop() {
       if(readStartPin == 0) { // if start pin is hit (becomes a 0)
         InPlay = true; // In play becomes true, which means we now go into the inplay state, meaning the game starts
         readStartPin = 1;
+        myServo.write(90); // Rotate servo to 180 degrees
+        delay(1000);
+        myServo.write(45); // Rotate servo back to 0 degrees
         }
       break;
     case INPLAY:
@@ -242,10 +246,6 @@ void loop() {
       val2 = digitalRead(target2);   // read the input pin for drop target 2
       val3 = digitalRead(target3);   // read the input pin for drop target 3
       val4 = digitalRead(col); // read col pin
-
-      // Serial.println(val1);
-      // Serial.println(val2);
-      // Serial.println(val3);
 
       if(val1 == 1 || val2 == 1 || val3 == 1) { // if any of the targets now see a 1
           if(prevVal1_1 == 0 || prevVal2_1 == 0 || prevVal3_1 == 0) { // if the previous value of a drop target was 0, meaning it just got hit
@@ -296,7 +296,7 @@ void loop() {
       pop2 = digitalRead(spoon2Pin);   // read the spoon pin
       if(pop2 == LOW){ // if spoon pin value is low
         ACT = true;
-        Serial.println("Ballin2");
+        //Serial.println("Ballin2");
         digitalWrite(bumper2Pin, HIGH); // fire pop bumper coil
         delay(100);
         digitalWrite(bumper2Pin, LOW); // unfire pop bumper coil
@@ -307,7 +307,7 @@ void loop() {
       pop3 = digitalRead(spoon3Pin);   // read the spoon pin
       if(pop3 == LOW){ // if spoon pin is low
         ACT = true;
-        Serial.println("Ballin3");
+        //Serial.println("Ballin3");
         digitalWrite(bumper3Pin, HIGH); // fire pop bumper coil
         delay(100);
         digitalWrite(bumper3Pin, LOW); // unfire pop bumper coil
@@ -318,7 +318,7 @@ void loop() {
       pop4 = digitalRead(spoon4Pin);   // read the spoon pin
       if(pop4 == LOW){ // if spoon pin is low
         ACT = true;
-        Serial.println("Ballin4");
+        //Serial.println("Ballin4");
         digitalWrite(bumper4Pin, HIGH); // fire pop bumper coil
         delay(100);
         digitalWrite(bumper4Pin, LOW); // unfire pop bumper coil
@@ -329,7 +329,7 @@ void loop() {
       pop5 = digitalRead(spoon5Pin);   // read the input pin
       if(pop5 == LOW){ // if spoon pin is low
         ACT = true;
-        Serial.println("Ballin5");
+        //Serial.println("Ballin5");
         digitalWrite(bumper5Pin, HIGH); // fire pop bumper coil
         delay(100);
         digitalWrite(bumper5Pin, LOW); // unfire pop bumper coil
@@ -342,7 +342,7 @@ void loop() {
       if(rollover1 == 1) { // if rollover switch has changed to a 1
         if(prevRoll1 == 0) { // if the previous value was a zero, meaning it has switched from 0 to 1
           ACT = true;
-          Serial.println("one"); // print statement for testing
+          //Serial.println("one"); // print statement for testing
           score += 250; // increase score by this many points
           rsTriggered = true; // the rollover switch to allow the drop target to fire has been triggered
         }
@@ -354,7 +354,7 @@ void loop() {
       if(rollover2 == 1) { // if rollover switch has changed to a 1
         if(prevRoll2 == 0) { // if the previous value was a zero, meaning it has switched from 0 to 1
           ACT = true;
-          Serial.println("two"); // print statement for testing
+          //Serial.println("two"); // print statement for testing
           score += 250; // increase score by this many points
           rsTriggered = true; // the rollover switch to allow the drop target to fire has been triggered
         }
@@ -366,7 +366,7 @@ void loop() {
       if(rollover3 == 1) { // if rollover switch has changed to a 1
         if(prevRoll3 == 0) { // if the previous value was a zero, meaning it has switched from 0 to 1
           ACT = true;
-          Serial.println("three"); // print statement for testing
+          //Serial.println("three"); // print statement for testing
           score += 250; // increase score by this many points
           rsTriggered = true; // the rollover switch to allow the drop target to fire has been triggered
         }
@@ -378,7 +378,7 @@ void loop() {
       if(rollover4 == 1) { // if rollover switch has changed to a 1
         if(prevRoll4 == 0) { // if the previous value was a zero, meaning it has switched from 0 to 1
           ACT = true;
-          Serial.println("four"); // print statement for testing
+          //Serial.println("four"); // print statement for testing
           score += 250; // increase score by this many points
         }
       }
@@ -389,7 +389,7 @@ void loop() {
       if(rollover5 == 1) { // if rollover switch has changed to a 1
         if(prevRoll5 == 0) { // if the previous value was a zero, meaning it has switched from 0 to 1
           ACT = true;
-          Serial.println("five"); // print statement for testing
+          //Serial.println("five"); // print statement for testing
           score += 250; // increase score by this many points
         }
       }
@@ -402,8 +402,16 @@ void loop() {
         if(prevRoll6 == 0) { // if the previous value was a zero, meaning it has switched from 0 to 1
           if(ACT == false) { 
             lives -= 1; // decrease lives by 1 as the ball has gone in the gutter
-            delay(1000);
-            Serial.println("six"); // print statement for testing
+            if(lives == 0) {
+              Serial.write(0);
+            }
+            //Serial.println("six"); // print statement for testing
+            if(lives > 0) {
+              delay(1000);
+              myServo.write(90); // Rotate servo to 180 degrees
+              delay(1000);
+              myServo.write(45); // Rotate servo back to 0 degrees
+            }
           }
         }
       } 
@@ -414,7 +422,7 @@ void loop() {
       slingshot1val = digitalRead(slingshotSpoonPin1);   // read the input pin
       if(slingshot1val == LOW){
         ACT = true;
-        Serial.println("Slingshot1");
+        //Serial.println("Slingshot1");
         digitalWrite(slingshotBumperPin1, HIGH);
         delay(100);
         digitalWrite(slingshotBumperPin1, LOW);
@@ -425,7 +433,7 @@ void loop() {
       slingshot2val = digitalRead(slingshotSpoonPin2);   // read the input pin
       if(slingshot2val == LOW){
         ACT = true;
-        Serial.println("Slingshot2");
+        //Serial.println("Slingshot2");
         digitalWrite(slingshotBumperPin2, HIGH);
         val2 = digitalRead(slingshotBumperPin2);
         delay(100);
@@ -436,18 +444,7 @@ void loop() {
 
       if(millis() % 1000 == 0) {
         ACT = false;
-      }
-      // //Servo Motor  
-      // Trigger1 = digitalRead(startPin); // Read the button state
-      // Trigger2 = digitalRead(rsc6);
- 
-      // if(Trigger1 == 0 || (Trigger2 == 1 && prevTrigger2 == 0)) { // Check if the button is pressed (LOW for pull-up)
-      //   myServo.write(180); // Rotate servo to 180 degrees
-      //   delay(5000); // Wait for 5 seconds
-      //   myServo.write(0); // Rotate servo back to 0 degrees
-      //   delay(1000); // Optional: small delay to avoid bouncing issues
-      // }
-      // prevTrigger2 = Trigger2;
+      }      
       break;
   }
 }
